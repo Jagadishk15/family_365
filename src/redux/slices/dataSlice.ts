@@ -15,7 +15,9 @@ export const counterSlice = createSlice({
   name: 'orphanageDetails',
   initialState,
   reducers: {
-    resetState: () => initialState,
+    resetState: state => {
+      state.OrphanageDetails = [];
+    },
     orphanageDetails: (state, actions: PayloadAction<OrphanageResponse>) => {
       state.OrphanageDetails.push(actions.payload);
     },

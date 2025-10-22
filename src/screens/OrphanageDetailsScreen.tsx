@@ -117,14 +117,15 @@ const OrphanageDetailsScreen = () => {
 
     // Set a timer to open the modal after 5 seconds
     const timer = setTimeout(() => {
+      if (modalVisible) return;
       setModalVisible(true);
-    }, 5000);
+    }, 15000);
 
-    // Cleanup function to clear the timer when the component unmounts
-    return () => {
+    const unsubscribe = navigation.addListener('blur', () => {
       clearTimeout(timer);
-    };
-  }, []);
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   // useEffect(() => {
   //   const onBackPress = () => {
@@ -248,7 +249,9 @@ const OrphanageDetailsScreen = () => {
               </View>
 
               <Text style={styles.subHeading}>
-                Sponsor a meal and make a real impact on their life…
+                {` You're about to provide a meal ${'\n'} for ${
+                  OrphanageDetails[0]?.data?.strength
+                } family members.`}
               </Text>
             </View>
 

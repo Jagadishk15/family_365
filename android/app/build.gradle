@@ -82,8 +82,8 @@ android {
         applicationId "com.family365"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 5
-        versionName "5.0"
+        versionCode 6
+        versionName "5.2"
     }
     signingConfigs {
         debug {
@@ -111,6 +111,11 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             //   signingConfig signingConfigs.release
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "Family365-${variant.name}-v${variant.versionName}.apk"
         }
     }
 }

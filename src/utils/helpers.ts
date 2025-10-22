@@ -156,7 +156,7 @@ export const handleRegisterErrorValidate = (props: any) => {
           status: 'error',
           slideFrom: 'right',
         };
-      } else if (value?.length < 10) {
+      } else if (value?.trim()?.length < 10) {
         payload = {
           message: 'Enter valid Phone Number',
           duration: 3000,

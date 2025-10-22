@@ -737,22 +737,24 @@ const CustomModal: React.FC<TermsModalProps> = ({
             </View>
           </ScrollView>
 
-          {!hasScrolledToBottom && (
+          {/* {!hasScrolledToBottom && (
             <TouchableOpacity
               style={styles.scrollToBottomButton}
               onPress={scrollToBottom}>
               <Text style={styles.scrollToBottomText}>Scroll to Bottom</Text>
             </TouchableOpacity>
-          )}
+          )} */}
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={[styles.button, styles.declineButton]}
+              style={[styles.decline_btn, styles.declineButton]}
               onPress={onDecline}>
-              <Text style={styles.buttonText}>DECLINE</Text>
+              <Text style={[{color: COLOR.white}, styles.buttonText]}>
+                Close
+              </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[
                 styles.button,
                 styles.acceptButton,
@@ -760,8 +762,10 @@ const CustomModal: React.FC<TermsModalProps> = ({
               ]}
               onPress={onAccept}
               disabled={!hasScrolledToBottom}>
-              <Text style={styles.buttonText}>ACCEPT</Text>
-            </TouchableOpacity>
+              <Text style={[{color: COLOR.white}, styles.buttonText]}>
+                ACCEPT
+              </Text>
+            </TouchableOpacity> */}
           </View>
         </View>
       </View>
@@ -812,14 +816,14 @@ const styles = StyleSheet.create({
     marginTop: 15,
     marginBottom: 10,
     textAlign: 'center',
-    color: '#e74c3c',
+    color: '#000',
   },
   warningText: {
     fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 15,
     textAlign: 'center',
-    color: '#e74c3c',
+    color: '#000',
   },
   scrollContainer: {
     width: '100%',
@@ -861,11 +865,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
     textAlign: 'center',
-    color: '#e74c3c',
+    color: '#000',
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     width: '100%',
     marginTop: 10,
   },
@@ -877,22 +881,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  decline_btn: {
+    borderRadius: 5,
+    padding: 12,
+    minWidth: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   acceptButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: COLOR.black,
   },
   declineButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: COLOR.black,
   },
   disabledButton: {
     backgroundColor: '#bdc3c7',
   },
   buttonText: {
-    color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
   },
   scrollToBottomButton: {
-    backgroundColor: COLOR.bgBlue,
+    backgroundColor: COLOR.lavenderPurple,
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,

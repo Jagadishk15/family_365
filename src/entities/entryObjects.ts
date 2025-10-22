@@ -1,8 +1,8 @@
-import { IAuthText, ITabMenuItem } from './commonObjects';
+import {IAuthText, ITabMenuItem} from './commonObjects';
 
 export const AuthText: IAuthText = {
-  login: 'Login',
-  signup: "don't have login? Sign up",
+  login: 'Sign In',
+  signup: 'New to Family365? Join Now',
 };
 
 export enum participation {
@@ -11,11 +11,11 @@ export enum participation {
 }
 
 export const tabMenuItems: ITabMenuItem[] = [
-  { text: 'Food Menu', isLock: false },
-  { text: 'Vision & Mission', isLock: false },
-  { text: 'Our Team', isLock: false },
-  { text: 'Certificate List', isLock: false },
-  { text: 'Childrens & elders', isLock: true },
+  {text: 'Food Menu', isLock: false},
+  {text: 'Vision & Mission', isLock: false},
+  {text: 'Our Team', isLock: false},
+  {text: 'Certificate List', isLock: false},
+  {text: 'Childrens & elders', isLock: true},
 ];
 
 export const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

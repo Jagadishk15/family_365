@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
   Linking,
+  Pressable,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import ImageBackgroundProvider from '../components/providers/BackgroundGradiantProvider';
@@ -117,7 +118,6 @@ const StartScreen = () => {
       setLoading(false);
     }
   };
-
   const HandleParticipate = async () => {
     const error = handleErrorValidate({areaPincode, selectedParticipation});
     if (error) {
@@ -126,6 +126,7 @@ const StartScreen = () => {
     dispatch(setGlobalPinCode(areaPincode));
     setLoading(true);
     try {
+      dispatch(resetState());
       const response: any = await API_INSTANCE.get(
         `/auth/filter-orphanage-by-algorithm?pincode=${areaPincode}&type=${selectedParticipation}`,
       );
@@ -164,7 +165,7 @@ const StartScreen = () => {
     // navigation.navigate('ContactScreen');
     // Hide the modal after pressing the button.
     setShowContactModal(false);
-    Linking.openURL(`tel:${919841826925}`);
+    Linking.openURL(`tel:+${919445939151}`);
   };
 
   useEffect(() => {
@@ -280,24 +281,24 @@ const StartScreen = () => {
             visible={showContactModal}
             animationType="slide"
             onRequestClose={() => setShowContactModal(false)}>
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContainer}>
+            <Pressable
+              style={styles.modalOverlay}
+              onPress={() => setShowContactModal(false)}>
+              <Pressable style={styles.modalContainer} onPress={() => {}}>
                 <Text style={styles.modalMessage}>
-                  Sorry, currently no orphanages in your area!{'\n\n'}Family365
-                  will connect with an orphanage manually.
+                  Based on your pincode and selected home type (Child Care or
+                  Old Age),{'\n\n'}
+                  No suitable homes are available nearby. Please explore other
+                  options. {'\n\n'}
+                  For assistance, click 'Call Us' to contact support
                 </Text>
                 <TouchableOpacity
                   style={styles.contactButton}
                   onPress={handleContactNow}>
-                  <Text style={styles.contactButtonText}>Contact Now</Text>
+                  <Text style={styles.contactButtonText}>Connect Now</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setShowContactModal(false)}>
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+              </Pressable>
+            </Pressable>
           </Modal>
         </ImageBackgroundProvider>
       </KeyboardAvoidingProvider>
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   contactButton: {
-    backgroundColor: '#28a745',
+    backgroundColor: COLOR.black,
     paddingVertical: 10,
     paddingHorizontal: 25,
     borderRadius: 5,

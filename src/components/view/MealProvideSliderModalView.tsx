@@ -10,7 +10,7 @@ import {
   ImageBackground,
   Image,
   Platform,
-  Linking
+  Linking,
 } from 'react-native';
 import {COLOR} from '../../utils/colors';
 import GradiantProvider from '../providers/GradiantProvider';
@@ -52,8 +52,7 @@ const MealProviderModal = ({
         style={styles.footerSection}>
         <View style={styles.innerContainerForFooter}>
           <WhiteHeartIcon />
-          <Text style={styles.footerText}>World is One Family
-          </Text>
+          <Text style={styles.footerText}>World is One Family</Text>
           <TouchableOpacity
             style={styles.provideMealButton}
             onPress={() => setModalVisible(!modalVisible)}>
@@ -64,26 +63,26 @@ const MealProviderModal = ({
     );
   };
 
-     const dialCall = (number) => {
-        let phoneUrl = '';
-    
-        if (Platform.OS === 'android') {
-          phoneUrl = `tel:${number}`;
+  const dialCall = (number: number) => {
+    let phoneUrl = '';
+
+    if (Platform.OS === 'android') {
+      phoneUrl = `tel:+${number}`;
+    } else {
+      // iOS supports telprompt for a smoother experience
+      phoneUrl = `telprompt:+${number}`;
+    }
+
+    Linking.canOpenURL(phoneUrl)
+      .then(supported => {
+        if (!supported) {
+          Alert.alert('Error', 'Phone dialer is not available');
         } else {
-          // iOS supports telprompt for a smoother experience
-          phoneUrl = `telprompt:${number}`;
+          return Linking.openURL(phoneUrl);
         }
-    
-        Linking.canOpenURL(phoneUrl)
-          .then((supported) => {
-            if (!supported) {
-              Alert.alert('Error', 'Phone dialer is not available');
-            } else {
-              return Linking.openURL(phoneUrl);
-            }
-          })
-          .catch((err) => console.error('An error occurred', err));
-      };
+      })
+      .catch(err => console.error('An error occurred', err));
+  };
 
   const _firstSection = () => {
     return (
@@ -94,12 +93,12 @@ const MealProviderModal = ({
           <View style={styles.innerContainer}>
             <View style={styles.firstTextContainer}>
               <Text style={styles.headerText}>
-              Your contribution provides healthy meals for a day.
+                Your contribution provides healthy meals for a day.
               </Text>
               <CustomButtonField
-                buttonText={`Full days Meal at ₹${
+                buttonText={`Full days meal at ₹${
                   data?.at(0)?.data?.mealAmountPerDay
-                }`}
+                } for 20 members`}
                 style={styles.firstButton}
                 onPress={() => {}}
                 textColor={COLOR.darkGoldenBrown}
@@ -149,7 +148,6 @@ const MealProviderModal = ({
         style={{flexGrow: 1}}
         visible={modalVisible}
         onRequestClose={() => {
-          Alert.alert('Modal has been closed.');
           setModalVisible(!modalVisible);
         }}>
         <View
@@ -163,7 +161,9 @@ const MealProviderModal = ({
               <Pressable onPress={() => setModalVisible(!modalVisible)}>
                 <CancelIcon style={styles.cancelIcon} />
               </Pressable>
-              <Pressable style={styles.helpButton} onPress={() => dialCall(data?.at(0)?.data?.mobileNo)}>
+              <Pressable
+                style={styles.helpButton}
+                onPress={() => dialCall(919445939151)}>
                 <Text>Help</Text>
                 <HeadPhoneIcon />
               </Pressable>
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   firstButton: {
     top: 23,
     left: 13,
-    height: 30,
+    height: 40,
     backgroundColor: COLOR.white,
     borderRadius: 50,
     justifyContent: 'center',

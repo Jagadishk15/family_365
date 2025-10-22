@@ -1,4 +1,12 @@
-import {Image, Keyboard, Pressable, StyleSheet, Text, View} from 'react-native';
+import {
+  Image,
+  Keyboard,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import ContainerProvider from '../components/providers/ContainerProvider';
 import ImageBackgroundProvider from '../components/providers/BackgroundGradiantProvider';
@@ -102,8 +110,7 @@ const IdentityVerificationScreen = () => {
     const error: any = validation({
       pan,
       blood,
-      profession,
-      selectedConsentText,
+      // selectedConsentText,
     });
 
     if (error?.message) {
@@ -262,7 +269,7 @@ const IdentityVerificationScreen = () => {
           height={50}
           radius={10}
           type="text"
-          placeholder="Aadhar Number"
+          placeholder="Aadhar Number (Optional)"
           placeholderTextColor={COLOR.darkGray}
           textColor={COLOR.black}
           onChange={(text: any) => handleIdChange(text, 'aadhar')}
@@ -274,7 +281,7 @@ const IdentityVerificationScreen = () => {
           height={50}
           radius={10}
           type="text"
-          placeholder="PAN Number"
+          placeholder="PAN Number (Mandatory)"
           placeholderTextColor={COLOR.darkGray}
           textColor={COLOR.black}
           onChange={(text: any) => handleIdChange(text, 'pan')}
@@ -314,7 +321,7 @@ const IdentityVerificationScreen = () => {
             height={50}
             radius={10}
             type="text"
-            placeholder="Profession"
+            placeholder="Profession (Optional)"
             placeholderTextColor={COLOR.darkGray}
             textColor={COLOR.black}
             onChange={(text: any) => handleIdChange(text, 'profession')}
@@ -332,9 +339,10 @@ const IdentityVerificationScreen = () => {
         <Text style={styles.consentHeader}>Terms & Conditions</Text>
         <View style={styles.consentTextContainer}>
           <Text style={styles.consentSubHeader}>
-            Do you agree to share your personal details with the selected home?
+            By proceeding forward, you acknowledge that you have read and agreed
+            to the Terms and Conditions.
           </Text>
-          <View style={styles.boxContainer}>
+          {/* <View style={styles.boxContainer}>
             <Pressable
               style={{flex: 1, alignItems: 'center'}}
               onPress={() => {
@@ -375,7 +383,17 @@ const IdentityVerificationScreen = () => {
                 <Text style={styles.radioText}>{consentText?.at(1)}</Text>
               </View>
             </Pressable>
-          </View>
+          </View> */}
+          <TouchableOpacity
+            style={{alignSelf: 'flex-end'}}
+            onPress={() => {
+              if (isVisible) return;
+              setIsVisible(true);
+            }}>
+            <Text style={{fontSize: 14, color: COLOR.white, fontWeight: '600'}}>
+              Read More...
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -388,11 +406,8 @@ const IdentityVerificationScreen = () => {
         textColor={theme.white}
         style={styles.button}
         opacity={0.1}
-        onPress={() => {
-          if (isVisible) return;
-          setIsVisible(true);
-        }}
         textStyle={styles.buttonText}
+        onPress={onProceed}
       />
     );
   };
@@ -501,7 +516,7 @@ const styles = StyleSheet.create({
   // Consent section styles
   consentHeader: {
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: 700,
     color: COLOR.white,
     textAlign: 'left',
     marginVertical: 12,
@@ -519,7 +534,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     elevation: 5,
-    minHeight: 180,
+    minHeight: 100,
+    height: 120,
     width: '100%',
   },
   boxContainer: {
@@ -563,8 +579,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 'auto',
-    marginTop: 10,
+    marginTop: 30,
   },
   buttonText: {
     fontSize: 14,

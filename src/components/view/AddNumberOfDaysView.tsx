@@ -165,7 +165,7 @@ const AddNumberOfDaysView = ({
           </Pressable>
           <View style={[styles.bottomRight]}>
             <TextInput
-              placeholder="Occasion for This Donation"
+              placeholder="Reason for Your Donation"
               placeholderTextColor={theme.black}
               value={localInput?.at(index)?.memberBookedDescription}
               onChangeText={text => {

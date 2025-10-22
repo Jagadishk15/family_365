@@ -20,6 +20,7 @@ const PaymentVerificationScreen = ({route}: any) => {
   const {OrphanageDetails}: any = useSelector(
     (state: RootState) => state.orphanageDetails,
   );
+
   const {dataNew} = route.params;
   const {registerForm, memberData}: any = registerData ?? {};
   // console.log('registerForm', registerForm?.orphanageId);
@@ -220,13 +221,18 @@ const PaymentVerificationScreen = ({route}: any) => {
   const _receiptSection = () => {
     return (
       <View style={styles.receiptContainer}>
-        <Text style={styles.receiptHeading}>Receipt</Text>
+        <Text style={styles.receiptHeading}>Meal Support Summary</Text>
         <View style={styles.receiptRow}>
-          <Text style={styles.receiptLabel}>Per Member Cost</Text>
-          <Text style={styles.receiptValue}>{costPerMember}</Text>
+          <Text style={styles.receiptLabel}>
+            Per Day Cost {'\n'}{' '}
+            <Text style={{fontSize: 10}}>
+              (Breakfast, Lunch, Dinner included)
+            </Text>
+          </Text>
+          <Text style={styles.receiptValue}>{'₹' + ' ' + costPerMember}</Text>
         </View>
         <View style={styles.receiptRow}>
-          <Text style={styles.receiptLabel}>Number of Members</Text>
+          <Text style={styles.receiptLabel}>Number of Donors</Text>
           <Text style={styles.receiptValue}>{numberOfMembers}</Text>
         </View>
         <View style={styles.receiptRow}>
@@ -238,7 +244,7 @@ const PaymentVerificationScreen = ({route}: any) => {
               color: COLOR.white,
               fontWeight: 'bold',
             }}>
-            {totalCost}
+            {'₹' + ' ' + totalCost}
           </Text>
         </View>
       </View>
@@ -254,7 +260,11 @@ const PaymentVerificationScreen = ({route}: any) => {
 
     return (
       <View style={styles.idContainer}>
-        <Text style={styles.idText}>Payment Verification</Text>
+        <Text style={styles.idText}>
+          {`You’re One Step Away from ${'\n'} Feeding ${
+            OrphanageDetails?.at(0)?.data?.strength
+          } People`}
+        </Text>
         {_receiptSection()}
         {/* <Text style={styles.idTextT}>UPI ID</Text> */}
         {/* Profession Section */}
@@ -290,7 +300,7 @@ const PaymentVerificationScreen = ({route}: any) => {
   const _buttonSection = () => {
     return (
       <CustomButtonField
-        buttonText="Submit payment details"
+        buttonText="Proceed To Pay"
         textColor={theme.white}
         style={styles.button}
         opacity={0.1}
@@ -349,6 +359,7 @@ const styles = StyleSheet.create({
     color: COLOR.white,
     textAlign: 'center',
     marginBottom: 26,
+    lineHeight: 35,
   },
   receiptContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
