@@ -7,6 +7,7 @@ import {
   Image,
 } from 'react-native';
 import {useTheme} from '@react-navigation/native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {COLOR} from '../../utils/colors';
 import {
   HomeInActiveIcon,
@@ -23,6 +24,7 @@ import {
 
 const CustomTabBar = ({state, descriptors, navigation}: any) => {
   const {colors} = useTheme();
+  const insets = useSafeAreaInsets();
 
   const MENU_DATA = [
     {
@@ -63,7 +65,7 @@ const CustomTabBar = ({state, descriptors, navigation}: any) => {
   ];
 
   return (
-    <View style={styles.tabContainer}>
+    <View style={[styles.tabContainer, {paddingBottom: insets.bottom}]}>
       {state.routes.map((route: any, index: any) => {
         const {icon} = MENU_DATA[index] || {}; // Safe access
         const focused = state.index === index;

@@ -23,7 +23,7 @@ const WelcomeScreen = () => {
             source={require('../assets/images/whitelogo.png')}
             style={styles.logo}
           />
-          <Text style={styles.welcomeText}>AN INITIATIVE </Text>{' '}
+          <Text style={styles.welcomeText}>AN INITIATIVE </Text>
           <Text style={styles.welcomeText}>BY</Text>
           <Text style={styles.welcomeText1}>INSPIRATIONS</Text>
           <Text style={styles.welcomeText2}>PUBLIC CHARITABLE TRUST</Text>

@@ -21,7 +21,6 @@ const ParticipantComponent = ({
           handleRadioSelect(Object.keys(participation).at(0)?.toString());
           Keyboard.dismiss();
         }}>
-        {' '}
         <Image
           source={require('../../assets/images/startImage1.png')}
           style={styles.participantImage}
@@ -39,7 +38,6 @@ const ParticipantComponent = ({
           handleRadioSelect(Object.keys(participation).at(1)?.toString());
           Keyboard.dismiss();
         }}>
-        {' '}
         <Image
           source={require('../../assets/images/startImage2.png')}
           style={styles.participantImage}

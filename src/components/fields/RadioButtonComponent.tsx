@@ -5,8 +5,7 @@ import {COLOR} from '../../utils/colors';
 const RadioButtonComponent = ({isSelected}: {isSelected: boolean}) => {
   return (
     <View style={styles.radioContainer}>
-      {' '}
-      <View style={[isSelected ? styles.radioInner : null]} />{' '}
+      <View style={[isSelected ? styles.radioInner : null]} />
     </View>
   );
 };

@@ -24,9 +24,10 @@ const TabViewComponent = ({
     <View
       style={[{height: tabHeight, borderRadius: radius}, styles.tabContainer]}>
       {tabText &&
-        tabText?.map((text: string) => {
+        tabText?.map((text: string, index: number) => {
           return (
             <Pressable
+              key={index}
               style={[
                 selectedText === text
                   ? styles.buttonStyle

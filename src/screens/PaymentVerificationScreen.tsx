@@ -52,14 +52,19 @@ const PaymentVerificationScreen = ({route}: any) => {
 
   const onProceed = async () => {
     try {
+      console.log('formData', formData.totalAmount);
       if (formData?.amount && formData?.productInfo) {
         setLoading(true);
+        const payloadForAPI = {
+          ...formData,
+          amount: formData?.totalAmount, // Send totalAmount as amount to API
+        };
         const response = await API_INSTANCE.post(
           '/v2/payment/create-order',
-          formData,
+          payloadForAPI,
         );
         navigation.navigate('paymentSummaryScreen', {
-          amount: formData?.amount,
+          amount: formData?.totalAmount,
           dataNew: dataNew,
           paymentDetails: response?.data?.data,
         });
@@ -215,8 +220,9 @@ const PaymentVerificationScreen = ({route}: any) => {
       ...prv,
       amount: costPerMember?.toString(),
       productInfo: 'family365',
+      totalAmount: totalCost?.toString(),
     }));
-  }, [OrphanageDetails]);
+  }, [OrphanageDetails, totalCost]);
 
   const _receiptSection = () => {
     return (

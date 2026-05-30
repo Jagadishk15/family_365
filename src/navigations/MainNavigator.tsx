@@ -49,6 +49,7 @@ import {TabBarVisibilityProvider} from '../context/TabBarVisibilityContext'; // 
 import OrphanageScreen from '../screens/OrphanageScreen';
 import FAQScreen from '../screens/FAQScreen';
 import RaiseIssueScreen from '../screens/RaiseIssueScreen';
+import PersonalDetailsScreen from '../screens/PersonalDetailsScreen';
 
 // interface
 export type MainNavigatorParamList = {
@@ -61,6 +62,7 @@ export type MainNavigatorParamList = {
   orphanageScreen: undefined;
   faqScreen: undefined;
   raiseIssueScreen: undefined;
+  personalDetailsScreen: undefined;
 };
 
 // global values
@@ -88,6 +90,10 @@ const MainNavigator = () => {
         <Stack.Screen name="orphanageScreen" component={OrphanageScreen} />
         <Stack.Screen name="raiseIssueScreen" component={RaiseIssueScreen} />
         <Stack.Screen name="activitiesScreen" component={ActivitiesScreen} />
+        <Stack.Screen
+          name="personalDetailsScreen"
+          component={PersonalDetailsScreen}
+        />
       </Stack.Navigator>
     </TabBarVisibilityProvider>
   );

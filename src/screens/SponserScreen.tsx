@@ -214,7 +214,6 @@ const SponserScreen = () => {
                     ))
                 ) : (
                   <View>
-                    {' '}
                     <Image
                       source={require('../assets/images/nospon.png')}
                       style={styles.sponImage}

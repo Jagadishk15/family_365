@@ -142,7 +142,7 @@ const PaymentSummaryScreen = () => {
 
     setOption((prv: any) => ({
       'Donation Amount':
-        '₹' + ' ' + OrphanageDetails?.at(0)?.data?.mealAmountPerDay,
+        '₹' + ' ' + amount,
       'Donated To': 'Inspirations Public Charitable Trust',
       'Platform Fee \n (incl. GST)': '₹' + ' ' + inspritationAmount / 100,
       'Payment Gateway Charges \n (incl. GST)':
@@ -174,7 +174,7 @@ const PaymentSummaryScreen = () => {
       },
     }));
     // dispatch(memberData())
-  }, [paymentDetails]);
+  }, [paymentDetails, amount]);
   console.log(options);
   const onProceed = async () => {
     // setLoading(true);

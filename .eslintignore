@@ -1,0 +1,6 @@
+# Ignore generated and platform-specific artifacts
+android/
+ios/
+node_modules/
+**/build/
+**/__generated__/

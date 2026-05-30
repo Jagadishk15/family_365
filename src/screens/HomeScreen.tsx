@@ -9,7 +9,6 @@ import {
   View,
 } from 'react-native';
 import React, {useEffect, useState, useCallback} from 'react';
-import {Buffer} from 'buffer';
 import {useNavigation} from '@react-navigation/native';
 import ContainerProvider from '../components/providers/ContainerProvider';
 import GradiantProvider from '../components/providers/GradiantProvider';
@@ -26,6 +25,7 @@ import {useTabBarVisibility} from '../context/TabBarVisibilityContext';
 import {resetState} from '../redux/slices/dataSlice';
 import {useDispatch} from 'react-redux';
 import {useToaster} from '../components/providers/ToasterProvider';
+import type {AppDispatch} from '../redux/store';
 
 const data = [
   require('../assets/images/act-1.png'),
@@ -40,14 +40,13 @@ const data1 = [
 const HomeScreen = () => {
   const {user, setUser} = useAuthState() ?? {};
   const {showToast} = useToaster();
-  const [orphanageDetails, setOrphanageDetails] = useState([]);
-  const {setTabBarVisible} = useTabBarVisibility();
-  const [logoUri, setLogoUri] = useState<string | null>(null);
+  const [orphanageDetails, setOrphanageDetails] = useState<any>({});
+  const tabBarContext = useTabBarVisibility() as any;
+  const setTabBarVisible = tabBarContext?.setTabBarVisible || (() => {});
   const navigation = useNavigation<any>();
   const dispatch = useDispatch<AppDispatch>();
-  // const [memberDetails, setMemberDetails] = useState(null); // Store API response
-  const [isLoading, setIsLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   // console.log('memberDetails', memberDetails)
 
   const fetchMemberDetails = useCallback(async () => {
@@ -57,15 +56,27 @@ const HomeScreen = () => {
       const response = await API_INSTANCE.get(
         `v1/family-member/fetch-member-details-by-mobilenumber?mobileNumber=${user?.mobileNumber}`,
       );
+      const memberData = response?.data?.data;
+      const interestType = memberData?.interestIn || 'CHILD_CARE';
+      const userPincode = memberData?.pincode;
+      
       const response1 = await API_INSTANCE.get(
-        `v1/admin/filter-orphanage-by-algorithm?pincode=${user?.pincode}&type=${user?.interestIn}`,
+        'v1/admin/filter-orphanage-by-algorithm',
+        {
+          params: {
+            pincode: userPincode,
+            type: interestType,
+          },
+        },
       );
+      setOrphanageDetails(response1?.data?.data || {});
       setUser({
-        ...response?.data?.data,
+        ...memberData,
         orphanageId: response1?.data?.data?.orphanageId,
         mobileNo: response1?.data?.data?.mobileNo,
       });
-      if (user?.regStatus === 'pending') {
+      
+      if ((memberData as any)?.regStatus === 'pending') {
         showToast({
           message: 'Payment is being verified, please wait...',
           duration: 5000,
@@ -73,29 +84,37 @@ const HomeScreen = () => {
           slideFrom: 'right',
         });
       }
-      setOrphanageDetails(response1?.data?.data);
-      const orphanageId = response1?.data?.data?.orphanageId;
-      const response2 = await API_INSTANCE.get(
-        `v1/storage/fetch-logo-for-orphanage`,
-        {
-          params: {orphanageId},
-          responseType: 'arraybuffer', // Ensure binary data is fetched
-        },
-      );
+      // if (user?.regStatus === 'pending') {
+      //   showToast({
+      //     message: 'Payment is being verified, please wait...',
+      //     duration: 5000,
+      //     status: 'warning',
+      //     slideFrom: 'right',
+      //   });
+      // }
+      // setOrphanageDetails(response1?.data?.data);
+      // const orphanageId = response1?.data?.data?.orphanageId;
+      // const response2 = await API_INSTANCE.get(
+      //   `v1/storage/fetch-logo-for-orphanage`,
+      //   {
+      //     params: {orphanageId},
+      //     responseType: 'arraybuffer', // Ensure binary data is fetched
+      //   },
+      // );
 
-      // Convert binary data to Base64
-      const base64Image = `data:image/png;base64,${Buffer.from(
-        response2.data,
-        'binary',
-      ).toString('base64')}`;
-      setLogoUri(base64Image);
+      // // Convert binary data to Base64
+      // const base64Image = `data:image/png;base64,${Buffer.from(
+      //   response2.data,
+      //   'binary',
+      // ).toString('base64')}`;
+      // setLogoUri(base64Image);
     } catch (err: any) {
       console.error('Error fetching member details:', err);
       setError('Failed to load member details');
     } finally {
       setIsLoading(false);
     }
-  }, [user?.mobileNumber, setUser]);
+  }, [user?.mobileNumber, setUser, setOrphanageDetails, showToast]);
 
   useEffect(() => {
     if (user?.mobileNumber) {
@@ -126,7 +145,7 @@ const HomeScreen = () => {
   }
 
   // Check registration status
-  if (user?.regStatus === 'pending') {
+  if ((user as any)?.regStatus === 'pending') {
     setTabBarVisible(false);
     return (
       <ContainerProvider
@@ -151,28 +170,22 @@ const HomeScreen = () => {
           />
         </View>
         <View
-          style={{flex: 0.2, justifyContent: 'center', alignItems: 'center'}}>
+          style={styles.pendingFooterContainer}>
           <Pressable
             onPress={() => {
               dispatch(resetState());
               setUser(null);
             }}
-            style={{
-              height: 30,
-              borderWidth: 1,
-              borderColor: COLOR.black,
-              paddingHorizontal: 20,
-              justifyContent: 'center',
-              marginBottom: 10,
-              borderRadius: 16,
-            }}>
-            <Text style={{color: COLOR.black, fontSize: 14}}>Logout</Text>
+            style={styles.pendingLogoutButton}>
+            <Text style={styles.pendingLogoutText}>Logout</Text>
           </Pressable>
-          <Text style={{color: COLOR.black, fontSize: 14}}>Family365</Text>
+          <Text style={styles.pendingFooterText}>Family365</Text>
         </View>
       </ContainerProvider>
     );
-  } else setTabBarVisible(true);
+  } else {
+    setTabBarVisible(true);
+  }
 
   // Render the main screen if registration status is not pending
   const _firstSection = () => {
@@ -187,7 +200,7 @@ const HomeScreen = () => {
               source={require('../assets/images/banana.png')}
               style={styles.firstSecImage}
             />{' '}
-            {`Food\n365 Days of Happiness`}
+            {'Food\n365 Days of Happiness'}
           </Text>
           <Text style={styles.description}>
             World is One Family
@@ -209,7 +222,7 @@ const HomeScreen = () => {
   return (
     <ContainerProvider
       headerProps={{type: 2, headerTitle: `Hello, ${user?.firstName}`}}>
-      <ScrollView style={{flex: 1, height: '100%'}}>
+      <ScrollView style={styles.mainScrollView}>
         <View style={styles.innerMainContainer}>
           {/* firstSection */}
           <View style={styles.firstSecContainer}>{_firstSection()}</View>
@@ -224,13 +237,8 @@ const HomeScreen = () => {
                 data={data}
                 containerWidth={168}
                 containerHeight={155}
-                imageContainerStyle={{
-                  flex: 1,
-                  width: 168,
-                  height: 155,
-                  borderRadius: 20,
-                }}
-                imageStyle={{width: 168, height: 155, borderRadius: 20}}
+                imageContainerStyle={styles.imageSliderContainer}
+                imageStyle={styles.imageSliderImage}
               />
 
               {/* <View
@@ -267,7 +275,7 @@ const HomeScreen = () => {
                 onPress={() => {
                   navigation.navigate('sponserScreen');
                 }}
-                style={[styles.ActivitiesBtn, {width: 90, marginLeft: 8}]}
+                style={[styles.ActivitiesBtn, {width: 90, marginLeft: 8}] as any}
                 textColor={theme.white}
                 textStyle={styles.btnText}
                 opacity={0.8}
@@ -288,12 +296,8 @@ const HomeScreen = () => {
           <View style={styles.thirdSectionContainer}>
             <View style={styles.thirdSectionInner}>
               <ScrollView
-                style={{flex: 1}}
-                contentContainerStyle={{
-                  paddingHorizontal: 1,
-                  paddingVertical: 10,
-                  rowGap: 16, // Adds 16px vertical space between each child
-                }}>
+                style={styles.thirdSectionScroll}
+                contentContainerStyle={styles.thirdSectionScrollContent}>
                 <CustomButtonField
                   buttonText="Home Details"
                   onPress={() => {
@@ -301,14 +305,14 @@ const HomeScreen = () => {
                       OrphanageDetails: [orphanageDetails],
                     });
                   }}
-                  style={[styles.ActivitiesBtn, {width: 120, marginLeft: 8}]}
+                  style={[styles.ActivitiesBtn, {width: 120, marginLeft: 8}] as any}
                   textColor={theme.white}
                   textStyle={styles.btnText}
                   opacity={0.8}
                 />
                 <BadgeView
                   icon={
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={styles.badgeIconView}>
                       {/* <Image
         source={
           logoUri
@@ -325,14 +329,10 @@ const HomeScreen = () => {
                 />
 
                 <View
-                  style={{
-                    left: 10,
-                    width: '80%',
-                    rowGap: 4,
-                  }}>
-                  <View style={{flexDirection: 'row', columnGap: 3}}>
+                  style={styles.addressContainer}>
+                  <View style={styles.addressRow}>
                     <LocationIcon />
-                    <Text style={{color: COLOR.black, fontSize: 13}}>
+                    <Text style={styles.addressText}>
                       {orphanageDetails?.addressLine1}{' '}
                       {orphanageDetails?.addressLine2}{' '}
                       {orphanageDetails?.addressLine3} {orphanageDetails?.city}{' '}
@@ -341,9 +341,9 @@ const HomeScreen = () => {
                     </Text>
                   </View>
 
-                  <View style={{flexDirection: 'row', columnGap: 3}}>
+                  <View style={styles.addressRow}>
                     <GroupIcon />
-                    <Text style={{color: COLOR.black, fontSize: 13}}>
+                    <Text style={styles.addressText}>
                       Supported: 38
                     </Text>
                   </View>
@@ -390,18 +390,11 @@ const HomeScreen = () => {
             </View>
 
             {/* "right" */}
-            <View style={{flex: 1, rowGap: 16}}>
+            <View style={styles.rightSectionContainer}>
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => navigation.navigate('needScreen')}
-                style={{
-                  backgroundColor: '#F4C4F3',
-                  flex: 0.6,
-                  borderRadius: 20,
-                  justifyContent: 'center',
-                  rowGap: 12,
-                  alignItems: 'center',
-                }}>
+                style={styles.needsSection}>
                 {/* <View
                 style={{
                   backgroundColor: '#F4C4F3',
@@ -424,18 +417,14 @@ const HomeScreen = () => {
                       marginRight: 'auto',
                       marginLeft: 10,
                     },
-                  ]}
+                  ] as any}
                   textColor={theme.white}
                   textStyle={styles.btnText}
                   opacity={0.8}
                 />
 
                 <Text
-                  style={{
-                    width: 150,
-                    fontSize: 13,
-                    fontWeight: 400,
-                  }}>
+                  style={styles.needsText}>
                   "No matter the size, every contribution brings hope"
                   {/* The list of requirements : */}
                 </Text>
@@ -443,17 +432,8 @@ const HomeScreen = () => {
                   data={data1}
                   containerWidth={150}
                   containerHeight={45}
-                  imageContainerStyle={{
-                    flex: 1,
-                    width: 150,
-                    height: 45,
-                    borderRadius: 20,
-                  }}
-                  imageStyle={{
-                    width: 150,
-                    height: 45,
-                    borderRadius: 20,
-                  }}
+                  imageContainerStyle={styles.needsImageContainer}
+                  imageStyle={styles.needsImageStyle}
                 />
               </TouchableOpacity>
 
@@ -470,14 +450,14 @@ const HomeScreen = () => {
                   style={[
                     styles.ActivitiesBtn,
                     {width: 80, marginLeft: 8, marginTop: 8},
-                  ]}
+                  ] as any}
                   textColor={theme.white}
                   textStyle={styles.btnText}
                   opacity={0.8}
                 />
                 <View style={styles.container}>
                   {/* First Avatar with no negative margin */}
-                  <View style={[styles.avatarWrapper, {marginLeft: 0}]}>
+                  <View style={[styles.avatarWrapper, styles.firstAvatar]}>
                     <AvatarViewComponent
                       imageData="https://imageuploadtestingbob.s3.us-east-2.amazonaws.com/dev/alpino/g1.png"
                       imageStyle={styles.avatarImage}
@@ -518,6 +498,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     rowGap: 16,
     marginVertical: 16,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    paddingHorizontal: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: COLOR.black,
+    textAlign: 'center' as const,
+    fontWeight: '600' as const,
   },
   container: {
     flexDirection: 'row',
@@ -751,7 +743,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     maxWidth: 120, // ✅ Restrict max width
     overflow: 'hidden', // ✅ Prevent text overflow
-    textOverflow: 'ellipsis', // ✅ Show '...' if needed (works with web)
+
   },
   thirdSectionBadge: {
     flexDirection: 'row',
@@ -769,5 +761,114 @@ const styles = StyleSheet.create({
     flex: 0.4,
     borderRadius: 20,
     justifyContent: 'space-around',
+  },
+  
+  // Pending status styles
+  pendingFooterContainer: {
+    flex: 0.2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pendingLogoutButton: {
+    height: 30,
+    borderWidth: 1,
+    borderColor: COLOR.black,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    marginBottom: 10,
+    borderRadius: 16,
+  },
+  pendingLogoutText: {
+    color: COLOR.black,
+    fontSize: 14,
+  },
+  pendingFooterText: {
+    color: COLOR.black,
+    fontSize: 14,
+  },
+  
+  // Main scroll view
+  mainScrollView: {
+    flex: 1,
+    height: '100%',
+  },
+  
+  // Image slider styles
+  imageSliderContainer: {
+    flex: 1,
+    width: 168,
+    height: 155,
+    borderRadius: 20,
+  },
+  imageSliderImage: {
+    width: 168,
+    height: 155,
+    borderRadius: 20,
+  },
+  
+  // Third section scroll
+  thirdSectionScroll: {
+    flex: 1,
+  },
+  thirdSectionScrollContent: {
+    paddingHorizontal: 1,
+    paddingVertical: 10,
+    rowGap: 16,
+  },
+  
+  // Badge icon view
+  badgeIconView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  
+  // Address section
+  addressContainer: {
+    left: 10,
+    width: '80%',
+    rowGap: 4,
+  },
+  addressRow: {
+    flexDirection: 'row',
+    columnGap: 3,
+  },
+  addressText: {
+    color: COLOR.black,
+    fontSize: 13,
+  },
+  
+  // Right section (needs and gallery)
+  rightSectionContainer: {
+    flex: 1,
+    rowGap: 16,
+  },
+  needsSection: {
+    backgroundColor: '#F4C4F3',
+    flex: 0.6,
+    borderRadius: 20,
+    justifyContent: 'center',
+    rowGap: 12,
+    alignItems: 'center',
+  },
+  needsText: {
+    width: 150,
+    fontSize: 13,
+    fontWeight: '400',
+  },
+  needsImageContainer: {
+    flex: 1,
+    width: 150,
+    height: 45,
+    borderRadius: 20,
+  },
+  needsImageStyle: {
+    width: 150,
+    height: 45,
+    borderRadius: 20,
+  },
+  
+  // Avatar first item
+  firstAvatar: {
+    marginLeft: 0,
   },
 });

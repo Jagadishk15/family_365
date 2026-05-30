@@ -15,14 +15,11 @@ import CustomButtonField from '../components/fields/CustomButtonField';
 import {theme} from '../utils/theme';
 import {useAuthState} from '../context/AuthContext';
 import {
-  FlagIcon,
   NotificationIcon,
   ProfileAnswerIcon,
   ProfileDonationHistoryIcon,
-  ProfileDOwnloadIcon,
   ProfileIssueIcon,
   ProfileLocationIcon,
-  ProfileSponserIcon,
   RightArrowIcon,
 } from '../assets/svg';
 import {AppDispatch} from '../redux/store';
@@ -39,6 +36,10 @@ import API_INSTANCE from '../config/apiClient';
 type RootStackParamList = {
   Profile: undefined;
   Gallery: undefined;
+  personalDetailsScreen: undefined;
+  faqScreen: undefined;
+  raiseIssueScreen: undefined;
+  sponserScreen: undefined;
   // add others as needed
 };
 
@@ -79,10 +80,10 @@ const ProfileScreen = () => {
   const {showToast} = useToaster();
   const {user, setUser} = useAuthState() ?? {};
   const dispatch = useDispatch<AppDispatch>();
-  const [sponsors, setSponsors] = useState([]); // To store API response
-  const [error, setError] = useState(null); // Error state
+  const [sponsors, setSponsors] = useState<string>(''); // To store API response
+  const [_error, setError] = useState<string | null>(null); // Error state
 
-  const formatDate = dateStr => {
+  const formatDate = (dateStr: string) => {
     const dateObj = new Date(dateStr);
     return dateObj.toLocaleDateString('en-US', {
       month: 'long',
@@ -91,13 +92,13 @@ const ProfileScreen = () => {
     });
   };
 
-  function getUpcomingBookingDate(bookings) {
+  function getUpcomingBookingDate(bookings: any[]) {
     // Get today's date with time set to 00:00:00
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     // Filter for future bookings (including today)
-    const futureBookings = bookings.filter(booking => {
+    const futureBookings = bookings.filter((booking: any) => {
       const bookingDate = new Date(booking.bookingDate);
       const bookingDateOnly = new Date(
         bookingDate.getFullYear(),
@@ -109,7 +110,7 @@ const ProfileScreen = () => {
 
     if (futureBookings.length > 0) {
       // Find the earliest future booking date
-      const upcomingBooking = futureBookings.reduce((earliest, current) => {
+      const upcomingBooking = futureBookings.reduce((earliest: any, current: any) => {
         const earliestDate = new Date(earliest.bookingDate);
         const currentDate = new Date(current.bookingDate);
         return earliestDate <= currentDate ? earliest : current;
@@ -117,7 +118,7 @@ const ProfileScreen = () => {
       return upcomingBooking.bookingDate;
     } else {
       // If no future bookings, then check for past bookings
-      const pastBookings = bookings.filter(booking => {
+      const pastBookings = bookings.filter((booking: any) => {
         const bookingDate = new Date(booking.bookingDate);
         const bookingDateOnly = new Date(
           bookingDate.getFullYear(),
@@ -129,7 +130,7 @@ const ProfileScreen = () => {
 
       if (pastBookings.length > 0) {
         // Find the most recent past booking date
-        const recentBooking = pastBookings.reduce((latest, current) => {
+        const recentBooking = pastBookings.reduce((latest: any, current: any) => {
           const latestDate = new Date(latest.bookingDate);
           const currentDate = new Date(current.bookingDate);
           return latestDate >= currentDate ? latest : current;
@@ -168,6 +169,7 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     fetchSponsors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Get navigation
@@ -179,13 +181,7 @@ const ProfileScreen = () => {
     //   navigation.navigate('notificationScreen');
     // }
     if (title === 'Personal detail') {
-      // show
-      showToast({
-        message: 'Page is being developed',
-        duration: 5000,
-        status: 'success',
-        slideFrom: 'right',
-      });
+      navigation.navigate('personalDetailsScreen');
     }
     if (title === 'Frequently Asked Questions') {
       // show
@@ -244,7 +240,7 @@ const ProfileScreen = () => {
       <Pressable
         key={index}
         onPress={() => handleListItemPress(item.title)} // Attach press handler
-        style={{flexDirection: 'row', marginTop: 16, marginBottom: 12}}>
+        style={styles.profileListItem}>
         <View style={styles.profileLeft}>
           <View style={styles.listIconOuter}>{item?.icon}</View>
           <Text style={styles.listText}>{item?.title}</Text>
@@ -260,45 +256,25 @@ const ProfileScreen = () => {
     return (
       <GradiantProvider
         colors={['#E88B44', '#F2BD7F']}
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingHorizontal: 10,
-          borderRadius: 30,
-          minHeight: 40,
-          maxHeight: 120,
-        }}>
+        style={styles.imageSectionGradient}>
         <Image
           source={require('../assets/images/food.png')}
-          style={{height: 100, width: 100}}
+          style={styles.foodImage}
         />
         <View
-          style={{
-            flex: 1,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            rowGap: 10,
-          }}>
-          <Text style={{fontSize: 16, fontWeight: '700', color: COLOR.white}}>
+          style={styles.imageSectionContent}>
+          <Text style={styles.sponsorshipTitle}>
             Date of Meal Sponsorship{' '}
           </Text>
           <CustomButtonField
-            style={{
-              height: 40,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'rgba(0,0,0,0.2)',
-              borderRadius: 30,
-              paddingHorizontal: 8,
-            }}
+            style={styles.sponsorButton}
             buttonText={sponsors}
             opacity={1}
             textColor={theme.white}
             onPress={() => {
               navigation.navigate('sponserScreen');
             }}
-            textStyle={{fontSize: 14}}
+            textStyle={styles.sponsorButtonText}
           />
         </View>
       </GradiantProvider>
@@ -307,16 +283,13 @@ const ProfileScreen = () => {
 
   const _formSection = () => {
     return (
-      <View style={{flex: 3}}>
+      <View style={styles.formSection}>
         {profileListData?.map((item, index) => {
           return (
             <View key={index}>
               {_profileList(item, index)}
               <View
-                style={{
-                  borderBottomColor: COLOR.silverLight,
-                  borderBottomWidth: 1,
-                }}
+                style={styles.divider}
               />
             </View>
           );
@@ -328,45 +301,37 @@ const ProfileScreen = () => {
   return (
     <ContainerProvider>
       <HeaderView type={4} headerTitle="Profile" />
-      <View style={{flex: 1}}>
+      <View style={styles.mainContainer}>
         {/* Name Section */}
         <View
-          style={{flex: 0.3, justifyContent: 'center', alignItems: 'center'}}>
+          style={styles.nameSectionContainer}>
           {_nameSection()}
         </View>
 
         {/* Image Section */}
-        <View style={{flex: 0.4, paddingHorizontal: 16}}>
+        <View style={styles.imageSectionContainer}>
           {_imageSection()}
         </View>
 
         {/* Form Section */}
-        <View style={{flex: 1, paddingHorizontal: 16}}>
-          <ScrollView contentContainerStyle={{paddingBottom: 16}}>
+        <View style={styles.formSectionContainer}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
             {_formSection()}
           </ScrollView>
         </View>
 
         {/* Footer Section */}
         <View
-          style={{flex: 0.2, justifyContent: 'center', alignItems: 'center'}}>
+          style={styles.footerContainer}>
           <Pressable
             onPress={() => {
               dispatch(resetState());
               setUser(null);
             }}
-            style={{
-              height: 30,
-              borderWidth: 1,
-              borderColor: COLOR.black,
-              paddingHorizontal: 20,
-              justifyContent: 'center',
-              marginBottom: 10,
-              borderRadius: 16,
-            }}>
-            <Text style={{color: COLOR.black, fontSize: 14}}>Logout</Text>
+            style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Logout</Text>
           </Pressable>
-          <Text style={{color: COLOR.black, fontSize: 14}}>Family365</Text>
+          <Text style={styles.footerText}>Family365</Text>
         </View>
       </View>
     </ContainerProvider>
@@ -385,6 +350,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: COLOR.black,
+  },
+  profileListItem: {
+    flexDirection: 'row',
+    marginTop: 16,
+    marginBottom: 12,
   },
   listIconOuter: {
     height: 40,
@@ -410,5 +380,89 @@ const styles = StyleSheet.create({
     flex: 0.1,
     justifyContent: 'center',
     alignItems: 'flex-end',
+  },
+  imageSectionGradient: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    borderRadius: 30,
+    minHeight: 40,
+    maxHeight: 120,
+  },
+  foodImage: {
+    height: 100,
+    width: 100,
+  },
+  imageSectionContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    rowGap: 10,
+  },
+  sponsorshipTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLOR.white,
+  },
+  sponsorButton: {
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    borderRadius: 30,
+    paddingLeft: 8,
+    paddingRight: 8,
+  },
+  sponsorButtonText: {
+    fontSize: 14,
+  },
+  formSection: {
+    flex: 3,
+  },
+  divider: {
+    borderBottomColor: COLOR.silverLight,
+    borderBottomWidth: 1,
+  },
+  mainContainer: {
+    flex: 1,
+  },
+  nameSectionContainer: {
+    flex: 0.3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageSectionContainer: {
+    flex: 0.4,
+    paddingHorizontal: 16,
+  },
+  formSectionContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  scrollContent: {
+    paddingBottom: 16,
+  },
+  footerContainer: {
+    flex: 0.2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoutButton: {
+    height: 30,
+    borderWidth: 1,
+    borderColor: COLOR.black,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    marginBottom: 10,
+    borderRadius: 16,
+  },
+  logoutText: {
+    color: COLOR.black,
+    fontSize: 14,
+  },
+  footerText: {
+    color: COLOR.black,
+    fontSize: 14,
   },
 });
