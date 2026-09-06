@@ -36,35 +36,61 @@ const RegisterComponent = () => {
   const [state, setState] = useState<string>();
   const [pinCode, setPincode] = useState<string>();
   const [country, setCountry] = useState<string>('India');
-  // Function to fetch City & State using Pincode API
+  // Function to fetch City & State using Pincode API.
+  // Primary: India Post API (richest data — gives District + State). Backup:
+  // Zippopotam, used when the primary is unreachable (it has periodically had
+  // an expired SSL cert, which makes the HTTPS request throw). If both fail we
+  // do NOT block the user — City/State are editable so they can type manually.
   const fetchLocationDetails = async (pincode: string) => {
+    // 1) Primary lookup — India Post (api.postalpincode.in)
     try {
       const response = await axios.get(
         `https://api.postalpincode.in/pincode/${pincode}`,
+        {timeout: 10000},
       );
-      if (response.data && response.data[0].Status === 'Success') {
+      if (
+        response.data?.[0]?.Status === 'Success' &&
+        response.data[0].PostOffice?.length
+      ) {
         const postOfficeDetails = response.data[0].PostOffice[0];
-        setState(postOfficeDetails.State); // Set State from API response
-        setCity(postOfficeDetails.District); // Set City from API response
+        setState(postOfficeDetails.State);
+        setCity(postOfficeDetails.District);
         setCountry(postOfficeDetails.Country);
-      } else {
-        showToast({
-          message: 'Invalid Pincode',
-          duration: 3000,
-          status: 'error',
-        });
+        return;
+      }
+      if (response.data?.[0]?.Status === 'Error') {
+        showToast({message: 'Invalid Pincode', duration: 3000, status: 'error'});
         setState('');
         setCity('');
         setCountry('');
+        return;
       }
+      // Any other shape (e.g. "No records found") → try the backup below.
     } catch (error) {
+      // Network/SSL failure on the primary — fall through to the backup.
+    }
+
+    // 2) Backup lookup — Zippopotam (valid cert, returns state + locality)
+    try {
+      const res = await axios.get(`https://api.zippopotam.us/in/${pincode}`, {
+        timeout: 10000,
+      });
+      const place = res.data?.places?.[0];
+      if (place) {
+        setState(place.state);
+        setCity(place['place name']);
+        setCountry(res.data.country || 'India');
+        return;
+      }
+      showToast({message: 'Invalid Pincode', duration: 3000, status: 'error'});
+    } catch (error) {
+      // Both lookups failed — let the user fill City & State manually rather
+      // than leaving them stuck on a read-only form.
       showToast({
-        message: 'Error fetching Pincode details',
+        message: 'Could not auto-fill from pincode. Please enter City & State.',
         duration: 3000,
         status: 'error',
       });
-      setState('');
-      setCountry('');
     }
   };
   useEffect(() => {
@@ -230,7 +256,6 @@ const RegisterComponent = () => {
                     placeholderTextColor={theme.black}
                     onChange={setCity}
                     value={city}
-                    editable={false}
                   />
                   <TextInputComponent
                     radius={16}
@@ -242,7 +267,6 @@ const RegisterComponent = () => {
                     placeholderTextColor={theme.black}
                     onChange={setState}
                     value={state}
-                    editable={false}
                   />
                 </View>
 

@@ -69,10 +69,11 @@ export default function SliderButton({
       'worklet';
       // Check if the button has reached the end
       if (offset.value >= width.value - BUTTON_SIZE) {
-        // runOnJS(setModalVisible)(false);
-        // runOnJS(navigation.navigate)('register');
+        // runOnJS only accepts plain JS functions — passing a native host
+        // function like clearTimeout here trips a JSI assertion and crashes
+        // (SIGABRT). onSwipe already closes the modal, and `clearTime` was
+        // always undefined, so there is no timer to clear.
         runOnJS(onSwipe)();
-        runOnJS(clearTimeout)(clearTime);
         offset.value = withTiming(0); // Reset the slider
       }
     });

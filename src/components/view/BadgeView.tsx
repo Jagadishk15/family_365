@@ -5,7 +5,8 @@ const BadgeView = (props: any) => {
   const {icon, titleText, textStyle, style} = props ?? {};
   return (
     <View style={style}>
-      {icon} <Text style={textStyle}>{titleText}</Text>
+      {icon}
+      <Text style={textStyle}>{titleText}</Text>
     </View>
   );
 };

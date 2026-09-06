@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(adb devices *)",
+      "Bash(adb -s 10BE2M02JP0009H uninstall com.family365)",
+      "Bash(npx react-native *)",
+      "Bash(pkill -f \"react-native run-android\")",
+      "Bash(pkill -f \"cli.js run-android\")",
+      "Bash(adb -s 10BE2M02JP0009H install -r \"android/app/build/outputs/apk/debug/Family365-debug-v7.5.9.apk\")",
+      "Bash(adb -s 10BE2M02JP0009H shell am start -n com.family365/.MainActivity)",
+      "Bash(cat src/components/providers/BackgroundGradiantProvider.tsx)",
+      "Bash(cat src/components/providers/KeyboardAvoidingProvider.tsx)",
+      "Bash(grep -n \"memberData\" src/redux/slices/authSlice.ts)",
+      "Bash(sed -n '1,40p' src/redux/slices/authSlice.ts)",
+      "Bash(node -e \"console.log\\('resolves to:', require.resolve\\('react-native-worklets/plugin'\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./node_modules/react-native-reanimated/package.json'\\); console.log\\('reanimated', p.version\\); console.log\\('peerDeps:', JSON.stringify\\(p.peerDependencies||{}\\)\\); \")",
+      "Bash(curl -s \"http://localhost:8081/index.bundle?platform=android&dev=true\" -r 0-200)",
+      "Bash(curl -s --max-time 15 \"https://api.postalpincode.in/pincode/600001\")",
+      "Bash(curl -s -o /tmp/pin.json -w \"HTTP=%{http_code} time=%{time_total}s size=%{size_download}\\\\n\" --max-time 20 \"https://api.postalpincode.in/pincode/600001\")",
+      "Bash(curl -s -o /dev/null -w \"HTTP\\(http\\)=%{http_code}\\\\n\" --max-time 15 \"http://api.postalpincode.in/pincode/600001\")",
+      "Bash(curl -sv --max-time 20 \"https://api.postalpincode.in/pincode/600001\")",
+      "Bash(curl -s -o /dev/null -w \"api.postalpincode.in HTTPS=%{http_code}\\\\n\" --max-time 15 \"https://api.postalpincode.in/pincode/600001\")",
+      "Bash(curl -s -o /dev/null -w \"github.com HTTPS=%{http_code}\\\\n\" --max-time 15 \"https://api.github.com\")",
+      "Bash(curl -s -o /tmp/zip.json -w \"HTTP=%{http_code}\\\\n\" --max-time 15 \"https://api.zippopotam.us/in/600001\")",
+      "Bash(curl -sk --max-time 15 \"https://api.postalpincode.in/pincode/600001\" -o /tmp/pin2.json -w \"insecure HTTP=%{http_code}\\\\n\")"
+    ]
+  }
+}

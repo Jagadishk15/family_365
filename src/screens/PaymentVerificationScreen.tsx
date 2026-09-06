@@ -78,9 +78,21 @@ const PaymentVerificationScreen = ({route}: any) => {
       }
     } catch (error: any) {
       setLoading(false);
-      console.log(error);
-      console.log(error?.response?.data?.message);
-      console.log(error?.data?.response?.message);
+      // The server returns its message in `detail` (Spring error shape), not
+      // `message`. Surface it so the user isn't left with a dead button when
+      // create-order fails (e.g. Razorpay "transfer not supported" on the
+      // server). Without this the failure was logged but never shown.
+      const serverMessage =
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        'Unable to start payment right now. Please try again later.';
+      console.log('create-order failed', error?.response?.status, serverMessage);
+      showToast({
+        message: serverMessage,
+        duration: 5000,
+        status: 'error',
+        slideFrom: 'right',
+      });
     } finally {
       setLoading(false);
     }
